@@ -1,0 +1,20 @@
+
+@import url('https://rsms.me/inter/inter.css');
+
+html {
+  font-family: 'Inter var', sans-serif;
+}
+
+/* Apply smooth transitions to colors for theme switching */
+body,
+body * {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Base body styles */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
