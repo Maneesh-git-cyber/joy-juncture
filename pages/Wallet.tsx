@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWallet } from '../contexts/WalletContext';
@@ -16,7 +15,7 @@ const Wallet: React.FC = () => {
       <div className="flex flex-col items-center justify-center text-center py-20 px-4">
         <h2 className="text-2xl font-bold text-jj-gray-900 dark:text-white">Your Adventure Awaits!</h2>
         <p className="text-jj-gray-800 dark:text-jj-gray-300 mt-2 max-w-md mx-auto">Log in to unlock your personal Joy Wallet, track your points, and see how close you are to your next reward.</p>
-        <button onClick={login} className="mt-6 bg-jj-orange text-white font-bold py-3 px-6 rounded-full hover:bg-opacity-90 transition-all">
+        <button onClick={() => login()} className="mt-6 bg-jj-orange text-white font-bold py-3 px-6 rounded-full hover:bg-opacity-90 transition-all">
           Login to View Your Wallet
         </button>
       </div>

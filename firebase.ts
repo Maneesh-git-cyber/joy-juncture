@@ -1,5 +1,3 @@
-// FIX: Use v8 compat API for Firebase initialization
-// FIX: Use firebase/compat imports for v8 compatibility to correctly initialize Firebase.
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
@@ -14,7 +12,6 @@ const firebaseConfig = {
   measurementId: "G-4KG2TC67P2"
 };
 
-// FIX: Initialize Firebase using the v8 compat API
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }

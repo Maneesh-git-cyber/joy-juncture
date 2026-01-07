@@ -2,6 +2,10 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
+// FIX: Cast framer-motion components to any to resolve TypeScript errors with props
+const MotionDiv = motion.div as any;
+const MotionImg = motion.img as any;
+
 const About: React.FC = () => {
   const { scrollYProgress: timelineProgress } = useScroll();
   const sectionRef = useRef(null);
@@ -14,7 +18,7 @@ const About: React.FC = () => {
   return (
     <div>
       <section className="py-20 bg-white/20 dark:bg-jj-gray-800/20 backdrop-blur-sm">
-        <motion.div 
+        <MotionDiv 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -23,24 +27,24 @@ const About: React.FC = () => {
           <p className="mt-6 max-w-3xl mx-auto text-xl text-jj-gray-900 dark:text-jj-gray-200 leading-relaxed">
             At Joy Juncture, we believe games are powerful tools for bonding. They're not just about winning or losing; they're about creating shared moments, sparking laughter, and building connections that last a lifetime. Our mission is to be the architects of joy, crafting experiences that bring people together, one game at a time.
           </p>
-        </motion.div>
+        </MotionDiv>
       </section>
 
       <section ref={sectionRef} className="py-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center">
-            <motion.div 
+            <MotionDiv 
                 initial={{ opacity: 0, x: -100 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.5 }}
                 transition={{ duration: 0.6 }}
                 className="relative h-96">
-                <motion.img 
+                <MotionImg 
                   style={{ y: imageY }}
                   className="absolute inset-0 w-full h-full object-cover rounded-3xl shadow-xl transform rotate-3" src="https://picsum.photos/seed/founder/600/800" alt="Founder of Joy Juncture" 
                 />
-            </motion.div>
-            <motion.div 
+            </MotionDiv>
+            <MotionDiv 
                 initial={{ opacity: 0, x: 100 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.5 }}
@@ -53,7 +57,7 @@ const About: React.FC = () => {
               <p className="mt-4 text-lg text-jj-gray-900 dark:text-jj-gray-300">
                 After years observing the stilted interactions of the corporate world, they realized something vital was missing: the genuine, playful connection that games so effortlessly create. Joy Juncture was born from a simple desire to bottle that magic and share it with the world, transforming sterile events into vibrant, memorable experiences.
               </p>
-            </motion.div>
+            </MotionDiv>
           </div>
         </div>
       </section>
@@ -82,14 +86,14 @@ const About: React.FC = () => {
          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-center mb-12">Our Journey</h2>
             <div className="relative">
-                <motion.div 
+                <MotionDiv 
                   className="absolute left-1/2 w-1 bg-jj-yellow/50 transform -translate-x-1/2 origin-top h-full"
                   style={{ scaleY: timelineProgress }}
                   aria-hidden="true" 
                 />
                 <div className="space-y-16">
                     {/* Timeline Item 1 */}
-                    <motion.div 
+                    <MotionDiv 
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
@@ -102,9 +106,9 @@ const About: React.FC = () => {
                         </div>
                          <div className="w-10 h-10 bg-jj-yellow rounded-full z-10 flex items-center justify-center font-bold text-jj-gray-900 ring-4 ring-white/50">1</div>
                          <div className="w-1/2"></div>
-                    </motion.div>
+                    </MotionDiv>
                     {/* Timeline Item 2 */}
-                    <motion.div 
+                    <MotionDiv 
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
@@ -117,9 +121,9 @@ const About: React.FC = () => {
                                 <p className="text-sm mt-1">Hosted our first public game night in a local cafe. 12 people showed up. It was chaotic, loud, and an absolute blast!</p>
                             </div>
                         </div>
-                    </motion.div>
+                    </MotionDiv>
                      {/* Timeline Item 3 */}
-                    <motion.div
+                    <MotionDiv
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
@@ -132,9 +136,9 @@ const About: React.FC = () => {
                         </div>
                          <div className="w-10 h-10 bg-jj-yellow rounded-full z-10 flex items-center justify-center font-bold text-jj-gray-900 ring-4 ring-white/50">3</div>
                          <div className="w-1/2"></div>
-                    </motion.div>
+                    </MotionDiv>
                      {/* Timeline Item 4 */}
-                    <motion.div
+                    <MotionDiv
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
@@ -147,7 +151,7 @@ const About: React.FC = () => {
                                 <p className="text-sm mt-1">With a growing library of games and a community of thousands, we're just getting started on our mission to spread joy.</p>
                             </div>
                         </div>
-                    </motion.div>
+                    </MotionDiv>
                 </div>
             </div>
          </div>

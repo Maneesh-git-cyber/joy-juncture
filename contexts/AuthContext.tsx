@@ -1,6 +1,6 @@
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { auth, db } from '../firebase';
-// FIX: Use v8 compat imports and types
 // FIX: Use firebase/compat imports for v8 compatibility to correctly resolve types and namespaces.
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
@@ -8,41 +8,38 @@ import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  // FIX: Use firebase.User type from v8 compat API
   firebaseUser: firebase.User | null;
   loading: boolean;
-  login: () => Promise<void>;
+  login: (email?: string, password?: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // FIX: Use firebase.User type from v8 compat API
   const [firebaseUser, setFirebaseUser] = useState<firebase.User | null>(auth.currentUser);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // FIX: Use v8 compat onAuthStateChanged method
     const unsubscribe = auth.onAuthStateChanged(async (fbUser) => {
       setFirebaseUser(fbUser);
       if (fbUser) {
         setLoading(true);
-        // FIX: Use v8 compat Firestore methods
         const userRef = db.collection("users").doc(fbUser.uid);
         const docSnap = await userRef.get();
+        
         if (docSnap.exists) {
           setUser(docSnap.data() as User);
         } else {
-          // Create a new profile for anonymous user
-          const newUserProfile: User = {
-            name: 'Joyful Player',
-            email: 'player@joyjuncture.com', // placeholder
-            avatarUrl: `https://i.pravatar.cc/150?u=${fbUser.uid}`,
+          // If user exists in Auth but not Firestore (rare, or new anonymous), handle smoothly
+           const newUserProfile: User = {
+            name: fbUser.displayName || 'Joyful Player',
+            email: fbUser.email || 'anonymous@joyjuncture.com',
+            avatarUrl: fbUser.photoURL || `https://i.pravatar.cc/150?u=${fbUser.uid}`,
           };
-          // FIX: Use v8 compat Firestore set method
-          await userRef.set(newUserProfile);
+          // Don't overwrite if we are just reloading and data is missing, but for now set it
           setUser(newUserProfile);
         }
       } else {
@@ -53,23 +50,57 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => unsubscribe();
   }, []);
 
-  const login = async () => {
+  const login = async (email?: string, password?: string) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      // FIX: Use v8 compat signInAnonymously method
-      await auth.signInAnonymously();
+      if (email && password) {
+        // Email/Password Login
+        await auth.signInWithEmailAndPassword(email, password);
+      } else {
+        // Anonymous Login fallback
+        await auth.signInAnonymously();
+      }
     } catch (error) {
-      console.error("Error signing in anonymously", error);
+      console.error("Login error", error);
       setLoading(false);
+      throw error;
+    }
+  };
+
+  const register = async (email: string, password: string, name: string) => {
+    setLoading(true);
+    try {
+      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+      const fbUser = userCredential.user;
+      
+      if (fbUser) {
+        await fbUser.updateProfile({
+            displayName: name,
+            photoURL: `https://i.pravatar.cc/150?u=${fbUser.uid}`
+        });
+
+        const newUserProfile: User = {
+            name: name,
+            email: email,
+            avatarUrl: `https://i.pravatar.cc/150?u=${fbUser.uid}`,
+        };
+        
+        // Create user document in Firestore
+        await db.collection("users").doc(fbUser.uid).set(newUserProfile);
+        setUser(newUserProfile);
+      }
+    } catch (error) {
+      console.error("Registration error", error);
+      setLoading(false);
+      throw error;
     }
   };
 
   const logout = async () => {
-    // FIX: Use v8 compat signOut method
     await auth.signOut();
   };
 
-  const value = { user, firebaseUser, loading, login, logout };
+  const value = { user, firebaseUser, loading, login, register, logout };
 
   return (
     <AuthContext.Provider value={value}>

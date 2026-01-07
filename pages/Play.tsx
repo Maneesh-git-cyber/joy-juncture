@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useWallet } from '../contexts/WalletContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -126,7 +125,7 @@ const Play: React.FC = () => {
       <div className="flex flex-col items-center justify-center text-center py-20 px-4">
         <h2 className="text-2xl font-bold text-jj-gray-900 dark:text-white">Log in to Play & Earn</h2>
         <p className="text-jj-gray-800 dark:text-jj-gray-300 mt-2 max-w-md mx-auto">Our online games are a fun way to earn Joy Points! Log in to save your progress and add points to your wallet.</p>
-        <button onClick={login} className="mt-6 bg-jj-orange text-white font-bold py-3 px-6 rounded-full hover:bg-opacity-90 transition-all">
+        <button onClick={() => login()} className="mt-6 bg-jj-orange text-white font-bold py-3 px-6 rounded-full hover:bg-opacity-90 transition-all">
           Login to Play
         </button>
       </div>

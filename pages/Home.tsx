@@ -6,6 +6,12 @@ import { getEvents, getProducts } from '../services/firestoreService';
 import { Event, Product } from '../types';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
+// FIX: Cast framer-motion components to any to resolve TypeScript errors with props
+const MotionDiv = motion.div as any;
+const MotionH1 = motion.h1 as any;
+const MotionP = motion.p as any;
+const MotionImg = motion.img as any;
+
 const expressiveSpring = { type: "spring" as const, stiffness: 200, damping: 30 };
 
 const Home: React.FC = () => {
@@ -40,43 +46,43 @@ const Home: React.FC = () => {
   }, []);
 
   return (
-    <div className="space-y-24 md:space-y-32 pb-24 overflow-x-hidden">
+    <div className="space-y-16 md:space-y-20 pb-16 overflow-x-hidden">
       {/* Section 1: Hero Section */}
-      <section ref={heroRef} className="relative text-center -mt-24 pt-48 pb-24 overflow-hidden h-[100vh]">
-        <motion.div 
+      <section ref={heroRef} className="relative text-center -mt-32 pt-56 pb-12 overflow-hidden min-h-[90vh] flex flex-col justify-center">
+        <MotionDiv 
           style={{ y: bgLayer1Y }} 
-          className="absolute top-0 left-[-20%] w-[140%] h-full bg-gradient-to-r from-jj-sky/20 to-jj-pink/20 dark:from-jj-sky/10 dark:to-jj-pink/10 blur-3xl -z-10" 
+          className="absolute top-0 left-[-20%] w-[140%] h-full bg-gradient-to-r from-jj-sky/40 to-jj-pink/40 dark:from-jj-sky/30 dark:to-jj-pink/30 blur-3xl -z-10" 
         />
-        <motion.div 
+        <MotionDiv 
           style={{ y: bgLayer2Y, x: bgLayer2X }} 
           className="absolute top-[20%] right-[-10%] w-[50%] h-[50%] bg-jj-purple/10 dark:bg-jj-purple/5 rounded-full blur-3xl -z-10" 
         />
         <div className="relative max-w-4xl mx-auto px-4">
-          <motion.h1 
+          <MotionH1 
             style={{ y: textY, scale: textScale, opacity: textOpacity }}
-            className="text-4xl md:text-6xl font-extrabold tracking-tight text-jj-gray-900 dark:text-white">
+            className="text-5xl md:text-7xl font-extrabold tracking-tight text-jj-gray-900 dark:text-white leading-tight">
             Unleash Your Playful Side.
-          </motion.h1>
-          <motion.p 
+          </MotionH1>
+          <MotionP 
             style={{ y: textY, scale: textScale, opacity: textOpacity }}
-            className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-jj-gray-800 dark:text-jj-gray-200">
+            className="mt-6 max-w-2xl mx-auto text-xl md:text-2xl text-jj-gray-800 dark:text-jj-gray-200">
             We don’t just make games. We craft experiences that spark laughter, forge connections, and create unforgettable memories.
-          </motion.p>
-          <motion.div
+          </MotionP>
+          <MotionDiv
             style={{ y: textY, scale: textScale, opacity: textOpacity }}
-            className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4"
+            className="mt-12 flex flex-col sm:flex-row justify-center items-center gap-6"
           >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring}>
-                <Link to="/shop" className="w-full sm:w-auto block bg-jj-yellow text-jj-gray-900 font-bold py-3 px-8 rounded-full text-lg">
+            <MotionDiv whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring}>
+                <Link to="/shop" className="w-full sm:w-auto block bg-jj-yellow text-jj-gray-900 font-bold py-4 px-10 rounded-full text-xl shadow-lg">
                 Explore Our Games
                 </Link>
-            </motion.div>
-             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring}>
-                <Link to="/experiences" className="w-full sm:w-auto block bg-jj-sky text-white font-bold py-3 px-8 rounded-full text-lg">
+            </MotionDiv>
+             <MotionDiv whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring}>
+                <Link to="/experiences" className="w-full sm:w-auto block bg-jj-sky text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg">
                 Book an Experience
                 </Link>
-            </motion.div>
-          </motion.div>
+            </MotionDiv>
+          </MotionDiv>
         </div>
       </section>
 
@@ -84,11 +90,11 @@ const Home: React.FC = () => {
       <section 
         className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
       >
-        <div className="text-center">
+        <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-jj-gray-900 dark:text-white">Built on a Foundation of Joy</h2>
             <p className="mt-2 text-lg text-jj-gray-800 dark:text-jj-gray-300">Our design philosophy is simple:</p>
         </div>
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <PhilosophyCard title="Connect" description="Our games are engines for interaction, designed to break the ice and build lasting bonds." icon="heart" color="jj-pink" />
           <PhilosophyCard title="Play" description="We champion the pure, unfiltered fun of playfulness. Laughter is always the primary objective." icon="users" color="jj-blue" />
           <PhilosophyCard title="Create" description="Every game is a chance to create a new story, a shared memory, a moment of delight." icon="gift" color="jj-orange" />
@@ -97,40 +103,40 @@ const Home: React.FC = () => {
 
        {/* Section 3: Featured Games */}
        <section className="relative">
-        <h2 className="text-3xl font-bold text-center mb-12 text-jj-gray-900 dark:text-white">Featured Games</h2>
-        <motion.div 
+        <h2 className="text-3xl font-bold text-center mb-10 text-jj-gray-900 dark:text-white">Featured Games</h2>
+        <MotionDiv 
             drag="x" 
             dragConstraints={{ left: -600, right: 0 }}
-            className="flex items-stretch gap-8 px-4 sm:px-6 lg:px-8 cursor-grab active:cursor-grabbing"
+            className="flex items-stretch gap-8 px-4 sm:px-6 lg:px-8 cursor-grab active:cursor-grabbing pb-8"
         >
           {featuredProducts.map(product => (
-            <motion.div
+            <MotionDiv
                 key={product.id}
                 whileHover={{ y: -15, scale: 1.05, transition: expressiveSpring }}
                 whileTap={{ scale: 0.95 }}
-                className="w-80 flex-shrink-0"
+                className="w-80 flex-shrink-0 aspect-square"
             >
-             <Link to={`/shop/${product.id}`} className="group h-full bg-white/70 dark:bg-jj-gray-800/70 backdrop-blur-xl border border-white/50 dark:border-white/10 rounded-3xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col">
-                <img src={product.imageUrl} alt={product.name} className="w-full h-56 object-cover" />
-                <div className="p-4 flex flex-col flex-grow">
-                    <h3 className="text-lg font-bold text-jj-gray-900 dark:text-white">{product.name}</h3>
-                    <p className="text-sm text-jj-gray-800 dark:text-jj-gray-300 mt-1 flex-grow">{product.tagline}</p>
-                    <div className="mt-4 flex items-end justify-between">
-                        <p className="text-xl font-extrabold text-jj-orange">₹{product.price}</p>
-                        <span className="text-sm font-medium text-jj-blue group-hover:underline">View Details &rarr;</span>
+             <Link to={`/shop/${product.id}`} className="group h-full bg-white/70 dark:bg-jj-gray-800/70 backdrop-blur-xl border border-white/50 dark:border-white/10 rounded-3xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col relative">
+                <img src={product.imageUrl} alt={product.name} className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
+                    <h3 className="text-xl font-bold text-white">{product.name}</h3>
+                    <p className="text-sm text-gray-200 mt-1 line-clamp-2">{product.tagline}</p>
+                    <div className="mt-3 flex items-end justify-between">
+                        <p className="text-xl font-extrabold text-jj-yellow">₹{product.price}</p>
+                        <span className="text-sm font-medium text-white underline decoration-jj-sky decoration-2">View &rarr;</span>
                     </div>
                 </div>
             </Link>
-            </motion.div>
+            </MotionDiv>
           ))}
-          </motion.div>
+          </MotionDiv>
       </section>
 
 
       {/* Section 4: Event Spotlight */}
       {upcomingEvent && (
         <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div 
+            <MotionDiv 
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, amount: 0.3 }}
@@ -143,24 +149,24 @@ const Home: React.FC = () => {
                     <h2 className="text-3xl font-extrabold mt-2 text-jj-gray-900 dark:text-white">{upcomingEvent.name}</h2>
                     <p className="font-semibold text-jj-gray-800 dark:text-jj-gray-200 mt-1">{new Date(upcomingEvent.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} @ {upcomingEvent.location}</p>
                     <p className="text-jj-gray-800 dark:text-jj-gray-300 mt-4">{upcomingEvent.description}</p>
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring} className="mt-6 self-start">
+                    <MotionDiv whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring} className="mt-6 self-start">
                         <Link to="/events" className="block bg-jj-red text-white font-bold py-3 px-6 rounded-full">
                             Learn More & Register
                         </Link>
-                    </motion.div>
+                    </MotionDiv>
                 </div>
-            </motion.div>
+            </MotionDiv>
         </section>
       )}
 
       {/* Section 5: Community Gallery */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-12 text-jj-gray-900 dark:text-white">From Our Community</h2>
+            <h2 className="text-3xl font-bold text-center mb-8 text-jj-gray-900 dark:text-white">From Our Community</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <motion.img initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.1}} src="https://picsum.photos/seed/joy1/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:rotate-2"/>
-                <motion.img initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.2}} src="https://picsum.photos/seed/joy2/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:-rotate-2"/>
-                <motion.img initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.3}} src="https://picsum.photos/seed/joy3/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:rotate-2"/>
-                <motion.img initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.4}} src="https://picsum.photos/seed/joy4/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:-rotate-2"/>
+                <MotionImg initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.1}} src="https://picsum.photos/seed/joy1/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:rotate-2 aspect-square object-cover"/>
+                <MotionImg initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.2}} src="https://picsum.photos/seed/joy2/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:-rotate-2 aspect-square object-cover"/>
+                <MotionImg initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.3}} src="https://picsum.photos/seed/joy3/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:rotate-2 aspect-square object-cover"/>
+                <MotionImg initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.4}} src="https://picsum.photos/seed/joy4/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:-rotate-2 aspect-square object-cover"/>
             </div>
       </section>
 
@@ -170,12 +176,12 @@ const Home: React.FC = () => {
         <div className="bg-white/60 dark:bg-jj-gray-800/60 backdrop-blur-xl rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row items-center border border-white/50 dark:border-white/10">
             <div className="w-full md:w-1/2 p-8 md:p-12">
                 <h2 className="text-3xl font-bold text-jj-gray-900 dark:text-white">The Joy Engine</h2>
-                <p className="mt-4 text-lg text-jj-gray-900 dark:text-jj-gray-200">Your engagement is our currency. Earn Joy Points with every game purchase, event you attend, and online puzzle you solve. Redeem them for exclusive rewards, discounts, and bragging rights!</p>
-                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring} className="mt-6 inline-block">
+                <p className="mt-4 text-lg text-jj-gray-900 dark:text-jj-gray-200">Your engagement is our currency. Earn Joy Points with every game purchase, event you attend, and online puzzle you solve.</p>
+                 <MotionDiv whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring} className="mt-6 inline-block">
                     <Link to="/wallet" className="block bg-jj-purple text-white font-bold py-3 px-6 rounded-full">
                         Discover Your Wallet &rarr;
                     </Link>
-                </motion.div>
+                </MotionDiv>
             </div>
             <div className="w-full md:w-1/2 p-8 flex items-center justify-center">
                 <div className="bg-white dark:bg-jj-gray-900 p-6 rounded-3xl shadow-lg w-full max-w-sm">
@@ -190,8 +196,6 @@ const Home: React.FC = () => {
                     <div className="text-xs text-jj-gray-500 dark:text-jj-gray-400 space-y-1">
                         <p><span className="font-semibold text-green-500">+100</span> for Sign Up</p>
                         <p><span className="font-semibold text-green-500">+250</span> for Mehfil Purchase</p>
-                        <p><span className="font-semibold text-green-500">+50</span> for Game Night Attendance</p>
-                         <p><span className="font-semibold text-green-500">+25</span> for Solving Sudoku</p>
                     </div>
                 </div>
             </div>
@@ -219,7 +223,7 @@ const PhilosophyCard: React.FC<{ title: string; description: string; icon: strin
   const colorClass = philosophyCardStyles[color] || 'text-jj-gray-900';
 
   return (
-    <motion.div
+    <MotionDiv
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.5 }}
@@ -231,7 +235,7 @@ const PhilosophyCard: React.FC<{ title: string; description: string; icon: strin
       </div>
       <h3 className="text-xl font-bold text-jj-gray-900 dark:text-white">{title}</h3>
       <p className="mt-2 text-jj-gray-900 dark:text-jj-gray-300">{description}</p>
-    </motion.div>
+    </MotionDiv>
   );
 };
 
