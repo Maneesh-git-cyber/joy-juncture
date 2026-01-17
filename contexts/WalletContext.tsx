@@ -38,14 +38,14 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const addPoints = useCallback(async (description: string, points: number) => {
     if (!firebaseUser) {
-        console.error("User not logged in, cannot add points.");
-        // Optionally prompt user to login
-        alert("Please log in to earn points!");
-        return;
+      console.error("User not logged in, cannot add points.");
+      alert("Please log in to earn points!");
+      return;
     }
+    setLoading(true);
     await addWalletTransaction(firebaseUser.uid, description, points);
-    // Refresh transactions after adding new one
     await fetchTransactions(firebaseUser.uid);
+    setLoading(false);
   }, [firebaseUser, fetchTransactions]);
 
   return (

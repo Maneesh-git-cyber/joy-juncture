@@ -1,4 +1,6 @@
+
 import React from 'react';
+import Loading from '../components/Loading';
 import { useAuth } from '../contexts/AuthContext';
 import { useWallet } from '../contexts/WalletContext';
 
@@ -6,9 +8,9 @@ const Wallet: React.FC = () => {
   const { user, login, loading: authLoading } = useAuth();
   const { totalPoints, transactions, loading: walletLoading } = useWallet();
 
-  if (authLoading) {
-    return <div className="text-center py-20">Authenticating...</div>
-  }
+    if (authLoading) {
+        return <div className="text-center py-20"><Loading size="medium" label="Authenticating" /></div>
+    }
 
   if (!user) {
     return (
@@ -26,18 +28,31 @@ const Wallet: React.FC = () => {
     <div className="min-h-screen py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-            <img src={user.avatarUrl} alt={user.name} className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white shadow-lg"/>
+            {/* Large First Letter Avatar */}
+            <div className="w-24 h-24 rounded-full mx-auto mb-4 bg-gradient-to-br from-jj-purple to-jj-blue flex items-center justify-center text-white font-extrabold text-4xl border-4 border-white/20 shadow-2xl">
+                {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            </div>
+            
             <h1 className="text-3xl font-extrabold text-jj-gray-900 dark:text-white">Welcome back, {user.name}!</h1>
             <p className="text-lg text-jj-gray-800 dark:text-jj-gray-300 mt-2">Here's a summary of your journey with us.</p>
         </div>
 
-        <div className="bg-gradient-to-r from-jj-purple to-jj-blue text-white p-8 rounded-3xl shadow-2xl text-center mb-12">
-            <p className="text-lg font-medium opacity-80">Your Total Joy Points</p>
+        <div className="bg-gradient-to-br from-pink-200 to-blue-200 dark:from-pink-900 dark:to-blue-900 text-jj-gray-900 dark:text-white p-8 rounded-3xl shadow-2xl text-center mb-12 relative overflow-hidden">
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-white/40 dark:bg-white/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 -ml-12 -mb-12 w-48 h-48 bg-white/40 dark:bg-black/20 rounded-full blur-3xl"></div>
+            
+            <p className="text-lg font-bold opacity-80 tracking-wider uppercase">Your Joy Balance</p>
             {walletLoading ? 
-                <div className="h-16 w-32 bg-white/30 rounded-lg mx-auto mt-2 animate-pulse" /> : 
-                <p className="text-6xl font-bold mt-2">{totalPoints}</p>
+                <div className="h-16 w-32 bg-white/50 dark:bg-white/20 rounded-lg mx-auto mt-4 animate-pulse" /> : 
+                <div className="bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-2xl py-6 px-10 inline-block mt-6 border border-white/30 shadow-[0_10px_30px_rgba(0,0,0,0.15)] dark:shadow-[0_10px_30px_rgba(255,255,255,0.1)]">
+                    <div className="flex items-baseline justify-center gap-2">
+                        <p className="text-7xl font-extrabold tracking-tight">{totalPoints}</p>
+                        <span className="text-xl font-bold opacity-70">PTS</span>
+                    </div>
+                </div>
             }
-            <p className="mt-4 opacity-90 max-w-xl mx-auto">This is more than a number; it's a record of your fun! Redeem points for exclusive discounts, merchandise, and event tickets.</p>
+            <p className="mt-4 opacity-80 max-w-xl mx-auto text-sm sm:text-base font-medium">This is more than a number; it's a record of your fun! Redeem points for exclusive discounts, merchandise, and event tickets.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">

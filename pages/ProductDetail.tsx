@@ -1,7 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
+import Loading from '../components/Loading';
 import { Link, useParams } from 'react-router-dom';
 import { useWallet } from '../contexts/WalletContext';
+import { useCart } from '../contexts/CartContext';
 import { getProductById, getProducts } from '../services/firestoreService';
 import { Product } from '../types';
 
@@ -10,7 +12,8 @@ const ProductDetail: React.FC = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { addPoints } = useWallet();
+  const { totalPoints } = useWallet();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     if(!productId) return;
@@ -30,15 +33,18 @@ const ProductDetail: React.FC = () => {
     fetchProduct();
   }, [productId]);
   
-  const handlePurchase = async () => {
+  const handleAddToCart = () => {
     if (!product) return;
-    const pointsEarned = Math.floor(product.price * 10);
-    await addPoints(`Purchase: ${product.name}`, pointsEarned);
-    alert(`Thank you for your purchase! You've earned ${pointsEarned} Joy Points!`);
+    addToCart(product);
+    alert(`${product.name} added to your cart!`);
   };
 
+  // Discount logic: 10 INR off per 1000 points
+  const discountUnits = Math.floor(totalPoints / 1000);
+  const discountAmount = discountUnits * 10;
+
   if (loading) {
-    return <div className="text-center py-20">Loading game...</div>;
+    return <div className="text-center py-20"><Loading size="large" label="Loading game" /></div>;
   }
 
   if (!product) {
@@ -62,14 +68,30 @@ const ProductDetail: React.FC = () => {
             <h1 className="text-4xl font-extrabold text-jj-gray-900 dark:text-white tracking-tight">{product.name}</h1>
             <p className="mt-2 text-xl text-jj-gray-600 dark:text-jj-gray-300">{product.tagline}</p>
             
-            <p className="mt-6 text-3xl font-bold text-jj-orange">₹{product.price}</p>
+            <div className="mt-6">
+                <p className="text-3xl font-bold text-jj-orange">₹{product.price}</p>
+                {discountAmount > 0 && (
+                    <div className="mt-3 p-3 bg-green-100 dark:bg-green-900/30 rounded-xl border border-green-200 dark:border-green-800 inline-block">
+                        <p className="text-sm text-green-800 dark:text-green-300 font-bold flex items-center">
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
+                            Loyalty Reward Available
+                        </p>
+                        <p className="text-xs text-green-700 dark:text-green-400 mt-1">
+                            You have {totalPoints} Points. Redeem them at <span className="font-extrabold">Checkout</span> to save up to ₹{discountAmount}!
+                        </p>
+                    </div>
+                )}
+            </div>
             
             <p className="mt-6 text-base text-jj-gray-900 dark:text-jj-gray-200 leading-relaxed">{product.description}</p>
             
             <div className="mt-8">
-              <button onClick={handlePurchase} className="w-full bg-jj-orange text-white font-bold py-4 px-8 rounded-full text-lg hover:bg-opacity-90 transition-all transform hover:scale-105">
-                Add to Cart & Earn {Math.floor(product.price * 10)} Points
+              <button onClick={handleAddToCart} className="w-full bg-jj-orange text-white font-bold py-4 px-8 rounded-full text-lg hover:bg-opacity-90 transition-all transform hover:scale-105 shadow-lg">
+                Add to Cart
               </button>
+              <p className="mt-2 text-xs text-center text-jj-gray-500 dark:text-jj-gray-400">
+                  Earn Joy Points by playing games in our Arcade!
+              </p>
             </div>
             
             <div className="mt-10 border-t dark:border-jj-gray-700 pt-8">

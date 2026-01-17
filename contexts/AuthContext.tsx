@@ -1,7 +1,6 @@
 
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { auth, db } from '../firebase';
-// FIX: Use firebase/compat imports for v8 compatibility to correctly resolve types and namespaces.
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import { User } from '../types';
@@ -10,8 +9,8 @@ interface AuthContextType {
   user: User | null;
   firebaseUser: firebase.User | null;
   loading: boolean;
-  login: (email?: string, password?: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  login: (identifier?: string, password?: string) => Promise<void>;
+  register: (email: string, password: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -27,20 +26,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setFirebaseUser(fbUser);
       if (fbUser) {
         setLoading(true);
-        const userRef = db.collection("users").doc(fbUser.uid);
-        const docSnap = await userRef.get();
-        
-        if (docSnap.exists) {
-          setUser(docSnap.data() as User);
-        } else {
-          // If user exists in Auth but not Firestore (rare, or new anonymous), handle smoothly
-           const newUserProfile: User = {
-            name: fbUser.displayName || 'Joyful Player',
-            email: fbUser.email || 'anonymous@joyjuncture.com',
-            avatarUrl: fbUser.photoURL || `https://i.pravatar.cc/150?u=${fbUser.uid}`,
-          };
-          // Don't overwrite if we are just reloading and data is missing, but for now set it
-          setUser(newUserProfile);
+        try {
+          const userRef = db.collection('users').doc(fbUser.uid);
+          const docSnap = await userRef.get();
+
+          if (docSnap.exists) {
+            setUser(docSnap.data() as User);
+          } else {
+            const newUserProfile: User = {
+              name: fbUser.displayName || 'Joyful Player',
+              email: fbUser.email || 'anonymous@joyjuncture.com',
+              username: 'anonymous',
+            };
+            setUser(newUserProfile);
+          }
+        } catch (err) {
+          console.error('Error fetching user profile:', err);
+          setUser({
+            name: fbUser.displayName || 'Player',
+            email: fbUser.email || '',
+            username: 'guest',
+          });
         }
       } else {
         setUser(null);
@@ -50,47 +56,72 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => unsubscribe();
   }, []);
 
-  const login = async (email?: string, password?: string) => {
+  const login = async (identifier?: string, password?: string) => {
     setLoading(true);
     try {
-      if (email && password) {
-        // Email/Password Login
-        await auth.signInWithEmailAndPassword(email, password);
+      if (identifier && password) {
+        let emailToLogin = identifier;
+
+        if (!identifier.includes('@')) {
+          const userSnapshot = await db.collection('users').where('username', '==', identifier).limit(1).get();
+          if (!userSnapshot.empty) {
+            const userData = userSnapshot.docs[0].data();
+            emailToLogin = userData.email;
+          } else {
+            throw new Error('Username not found.');
+          }
+        }
+
+        await auth.signInWithEmailAndPassword(emailToLogin, password);
       } else {
-        // Anonymous Login fallback
         await auth.signInAnonymously();
       }
     } catch (error) {
-      console.error("Login error", error);
+      console.error('Login error:', error);
       setLoading(false);
       throw error;
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, password: string, username: string) => {
     setLoading(true);
     try {
+      try {
+        const usernameCheck = await db.collection('users').where('username', '==', username).limit(1).get();
+        if (!usernameCheck.empty) {
+          throw new Error('Username is already taken. Please choose another.');
+        }
+      } catch (err: any) {
+        if (err.code === 'permission-denied') {
+          throw new Error('Database permissions error. Please check Firestore Rules.');
+        }
+        throw err;
+      }
+
       const userCredential = await auth.createUserWithEmailAndPassword(email, password);
       const fbUser = userCredential.user;
-      
+
       if (fbUser) {
         await fbUser.updateProfile({
-            displayName: name,
-            photoURL: `https://i.pravatar.cc/150?u=${fbUser.uid}`
+          displayName: username,
         });
 
         const newUserProfile: User = {
-            name: name,
-            email: email,
-            avatarUrl: `https://i.pravatar.cc/150?u=${fbUser.uid}`,
+          name: username,
+          email: email,
+          username: username,
         };
-        
-        // Create user document in Firestore
-        await db.collection("users").doc(fbUser.uid).set(newUserProfile);
-        setUser(newUserProfile);
+
+        try {
+          await db.collection('users').doc(fbUser.uid).set(newUserProfile);
+          setUser(newUserProfile);
+        } catch (firestoreError) {
+          console.error('Error creating user profile in DB:', firestoreError);
+          throw new Error('Account created, but profile setup failed.');
+        }
       }
     } catch (error) {
-      console.error("Registration error", error);
+      console.error('Registration flow error:', error);
       setLoading(false);
       throw error;
     }
@@ -116,3 +147,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export default AuthContext;

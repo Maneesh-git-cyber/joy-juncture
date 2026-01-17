@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import Loading from '../components/Loading';
 import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import { getProducts } from '../services/firestoreService';
@@ -132,8 +133,10 @@ const Shop: React.FC = () => {
                  {loading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="bg-white/50 dark:bg-jj-gray-800/50 backdrop-blur-xl rounded-3xl p-4 space-y-4 animate-pulse aspect-square">
-                                <div className="h-full bg-jj-gray-200 dark:bg-jj-gray-700 rounded-xl"></div>
+                            <div key={i} className="bg-white/50 dark:bg-jj-gray-800/50 backdrop-blur-xl rounded-3xl p-4 space-y-4 aspect-square flex items-center justify-center">
+                                <div>
+                                  <div className="mx-auto"><Loading size="large" /></div>
+                                </div>
                             </div>
                         ))}
                     </div>

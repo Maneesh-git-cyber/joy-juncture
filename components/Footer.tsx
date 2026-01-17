@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   return (
-    // Removed max-w constraints from the background wrapper to ensure end-to-end
     <div className="w-full mt-auto bg-white/60 dark:bg-jj-gray-800/70 backdrop-blur-2xl border-t border-white/60 dark:border-white/20 shadow-2xl">
       <footer className="w-full max-w-7xl mx-auto py-10 px-6 sm:px-8 lg:px-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-12">

@@ -37,5 +37,6 @@ export interface WalletTransaction {
 export interface User {
   name: string;
   email: string;
-  avatarUrl: string;
+  avatarUrl?: string;
+  username?: string;
 }

@@ -8,10 +8,11 @@ const firebaseConfig = {
   projectId: "gwoc-26",
   storageBucket: "gwoc-26.firebasestorage.app",
   messagingSenderId: "756583479378",
-  appId: "1:756583479378:web:da7f8651c4ab610add478b",
-  measurementId: "G-4KG2TC67P2"
+  appId: "1:756583479378:web:a21a3bbc3a8eb4c1dd478b",
+  measurementId: "G-Q8RKVJZNXJ"
 };
 
+// Initialize Firebase
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }

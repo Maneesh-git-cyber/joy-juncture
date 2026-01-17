@@ -1,243 +1,194 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../contexts/WalletContext';
-import { getEvents, getProducts } from '../services/firestoreService';
-import { Event, Product } from '../types';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { getEvents } from '../services/firestoreService';
+import { Event } from '../types';
+import { motion } from 'framer-motion';
 
-// FIX: Cast framer-motion components to any to resolve TypeScript errors with props
 const MotionDiv = motion.div as any;
-const MotionH1 = motion.h1 as any;
-const MotionP = motion.p as any;
-const MotionImg = motion.img as any;
 
-const expressiveSpring = { type: "spring" as const, stiffness: 200, damping: 30 };
+const JourneyCard: React.FC<{ title: string; description: string; link: string; color: string; icon: any }> = ({ title, description, link, color, icon }) => (
+    <Link to={link} className="block h-full">
+        <MotionDiv 
+            whileHover={{ y: -10, scale: 1.02 }}
+            className={`h-full p-8 rounded-3xl ${color} backdrop-blur-xl border border-white/20 shadow-lg flex flex-col items-start`}
+        >
+            <div className="p-3 bg-white/60 dark:bg-white/10 rounded-2xl mb-4 text-jj-gray-900 dark:text-white">
+                {icon}
+            </div>
+            <h3 className="text-2xl font-bold text-jj-gray-900 dark:text-white mb-2">{title}</h3>
+            <p className="text-jj-gray-700 dark:text-jj-gray-200 mb-6 flex-grow">{description}</p>
+            <span className="font-bold text-jj-gray-900 dark:text-white flex items-center gap-2">
+                Explore <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+            </span>
+        </MotionDiv>
+    </Link>
+);
 
 const Home: React.FC = () => {
   const { totalPoints } = useWallet();
   const [upcomingEvent, setUpcomingEvent] = useState<Event | null>(null);
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "200%"]);
-  const textScale = useTransform(scrollYProgress, [0, 1], [1, 0.7]);
-  const textOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  
-  const bgLayer1Y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const bgLayer2Y = useTransform(scrollYProgress, [0, 1], ["0%", "60%"]);
-  const bgLayer2X = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
-
 
   useEffect(() => {
     const fetchData = async () => {
       const allEvents = await getEvents();
       setUpcomingEvent(allEvents.find(e => !e.isPast) || null);
-      
-      const allProducts = await getProducts();
-      setFeaturedProducts(allProducts.filter(p => ['dead-mans-deck', 'storytellers-saga', 'drama-kings', 'cosmic-colonies'].includes(p.id)));
     };
     fetchData();
   }, []);
 
   return (
-    <div className="space-y-16 md:space-y-20 pb-16 overflow-x-hidden">
-      {/* Section 1: Hero Section */}
-      <section ref={heroRef} className="relative text-center -mt-32 pt-56 pb-12 overflow-hidden min-h-[90vh] flex flex-col justify-center">
-        <MotionDiv 
-          style={{ y: bgLayer1Y }} 
-          className="absolute top-0 left-[-20%] w-[140%] h-full bg-gradient-to-r from-jj-sky/40 to-jj-pink/40 dark:from-jj-sky/30 dark:to-jj-pink/30 blur-3xl -z-10" 
-        />
-        <MotionDiv 
-          style={{ y: bgLayer2Y, x: bgLayer2X }} 
-          className="absolute top-[20%] right-[-10%] w-[50%] h-[50%] bg-jj-purple/10 dark:bg-jj-purple/5 rounded-full blur-3xl -z-10" 
-        />
-        <div className="relative max-w-4xl mx-auto px-4">
-          <MotionH1 
-            style={{ y: textY, scale: textScale, opacity: textOpacity }}
-            className="text-5xl md:text-7xl font-extrabold tracking-tight text-jj-gray-900 dark:text-white leading-tight">
-            Unleash Your Playful Side.
-          </MotionH1>
-          <MotionP 
-            style={{ y: textY, scale: textScale, opacity: textOpacity }}
-            className="mt-6 max-w-2xl mx-auto text-xl md:text-2xl text-jj-gray-800 dark:text-jj-gray-200">
-            We don’t just make games. We craft experiences that spark laughter, forge connections, and create unforgettable memories.
-          </MotionP>
-          <MotionDiv
-            style={{ y: textY, scale: textScale, opacity: textOpacity }}
-            className="mt-12 flex flex-col sm:flex-row justify-center items-center gap-6"
-          >
-            <MotionDiv whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring}>
-                <Link to="/shop" className="w-full sm:w-auto block bg-jj-yellow text-jj-gray-900 font-bold py-4 px-10 rounded-full text-xl shadow-lg">
-                Explore Our Games
+    <div className="overflow-x-hidden">
+      
+      {/* SECTION 1: HERO (Emotional Hook) - Parallax Removed */}
+      <section className="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-4 pt-20">
+        <div className="max-w-4xl relative z-10">
+            <h1 className="text-6xl md:text-8xl font-extrabold text-jj-gray-900 dark:text-white tracking-tight leading-tight mb-6">
+                Design Joy.<br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-jj-purple via-jj-blue to-jj-sky">Build Play.</span><br/>
+                Create Belonging.
+            </h1>
+            <p className="text-xl md:text-2xl text-jj-gray-800 dark:text-jj-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Games are not just products. They are moments, memories, and shared joy. Discover your next adventure.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link to="/shop" className="bg-jj-yellow text-jj-gray-900 font-bold py-4 px-8 rounded-full text-lg shadow-xl hover:scale-105 transition-transform">
+                    Shop Games
                 </Link>
-            </MotionDiv>
-             <MotionDiv whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring}>
-                <Link to="/experiences" className="w-full sm:w-auto block bg-jj-sky text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg">
-                Book an Experience
+                <Link to="/play" className="bg-white/20 backdrop-blur-md border border-white/30 text-jj-gray-900 dark:text-white font-bold py-4 px-8 rounded-full text-lg hover:bg-white/30 transition-all">
+                    Play Now (Free)
                 </Link>
-            </MotionDiv>
-          </MotionDiv>
+            </div>
         </div>
       </section>
 
-      {/* Section 2: Our Philosophy */}
-      <section 
-        className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
-      >
-        <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-jj-gray-900 dark:text-white">Built on a Foundation of Joy</h2>
-            <p className="mt-2 text-lg text-jj-gray-800 dark:text-jj-gray-300">Our design philosophy is simple:</p>
+      {/* SECTION 2: CHOOSE YOUR PLAY STYLE (4 Core Journeys) */}
+      <section className="py-20 px-4 max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-jj-gray-900 dark:text-white">How Do You Want to Play?</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <PhilosophyCard title="Connect" description="Our games are engines for interaction, designed to break the ice and build lasting bonds." icon="heart" color="jj-pink" />
-          <PhilosophyCard title="Play" description="We champion the pure, unfiltered fun of playfulness. Laughter is always the primary objective." icon="users" color="jj-blue" />
-          <PhilosophyCard title="Create" description="Every game is a chance to create a new story, a shared memory, a moment of delight." icon="gift" color="jj-orange" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <JourneyCard 
+                title="Play at Home" 
+                description="Board games, card games, and puzzles for friends and family."
+                link="/shop"
+                color="bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/50 dark:to-indigo-900/50"
+                icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>}
+            />
+            <JourneyCard 
+                title="Play Together" 
+                description="Live game nights, workshops, and community gatherings."
+                link="/events"
+                color="bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/50 dark:to-cyan-900/50"
+                icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.125-1.274-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.125-1.274.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
+            />
+            <JourneyCard 
+                title="Play for Occasions" 
+                description="Curated experiences for corporates, weddings, and birthdays."
+                link="/experiences"
+                color="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/50 dark:to-red-900/50"
+                icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z" /></svg>}
+            />
+            <JourneyCard 
+                title="Play & Belong" 
+                description="Earn points, solve riddles, and join the community."
+                link="/community"
+                color="bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/50 dark:to-rose-900/50"
+                icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" /></svg>}
+            />
         </div>
       </section>
 
-       {/* Section 3: Featured Games */}
-       <section className="relative">
-        <h2 className="text-3xl font-bold text-center mb-10 text-jj-gray-900 dark:text-white">Featured Games</h2>
-        <MotionDiv 
-            drag="x" 
-            dragConstraints={{ left: -600, right: 0 }}
-            className="flex items-stretch gap-8 px-4 sm:px-6 lg:px-8 cursor-grab active:cursor-grabbing pb-8"
-        >
-          {featuredProducts.map(product => (
-            <MotionDiv
-                key={product.id}
-                whileHover={{ y: -15, scale: 1.05, transition: expressiveSpring }}
-                whileTap={{ scale: 0.95 }}
-                className="w-80 flex-shrink-0 aspect-square"
-            >
-             <Link to={`/shop/${product.id}`} className="group h-full bg-white/70 dark:bg-jj-gray-800/70 backdrop-blur-xl border border-white/50 dark:border-white/10 rounded-3xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden flex flex-col relative">
-                <img src={product.imageUrl} alt={product.name} className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6">
-                    <h3 className="text-xl font-bold text-white">{product.name}</h3>
-                    <p className="text-sm text-gray-200 mt-1 line-clamp-2">{product.tagline}</p>
-                    <div className="mt-3 flex items-end justify-between">
-                        <p className="text-xl font-extrabold text-jj-yellow">₹{product.price}</p>
-                        <span className="text-sm font-medium text-white underline decoration-jj-sky decoration-2">View &rarr;</span>
+      {/* SECTION 3: WHAT'S HAPPENING NOW */}
+      <section className="py-16 bg-white/30 dark:bg-black/20 backdrop-blur-sm border-y border-white/10">
+        <div className="max-w-7xl mx-auto px-4">
+             <div className="flex items-center justify-between mb-8">
+                <h2 className="text-3xl font-bold text-jj-gray-900 dark:text-white flex items-center gap-3">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                    What's Happening Now
+                </h2>
+                <Link to="/events" className="text-jj-purple font-bold hover:underline">View All &rarr;</Link>
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Active Event */}
+                {upcomingEvent && (
+                    <div className="bg-white/70 dark:bg-jj-gray-800/70 p-6 rounded-3xl shadow-lg border border-white/20">
+                        <span className="text-xs font-bold text-jj-red uppercase tracking-wider mb-2 block">Upcoming Event</span>
+                        <h3 className="text-xl font-bold text-jj-gray-900 dark:text-white mb-2">{upcomingEvent.name}</h3>
+                        <p className="text-sm text-jj-gray-600 dark:text-jj-gray-300 mb-4">{upcomingEvent.description}</p>
+                        <Link to="/events" className="text-sm font-bold text-jj-blue underline">Register Now</Link>
                     </div>
+                )}
+                {/* Active Puzzle */}
+                <div className="bg-white/70 dark:bg-jj-gray-800/70 p-6 rounded-3xl shadow-lg border border-white/20">
+                     <span className="text-xs font-bold text-jj-orange uppercase tracking-wider mb-2 block">Daily Challenge</span>
+                     <h3 className="text-xl font-bold text-jj-gray-900 dark:text-white mb-2">Daily Sudoku #42</h3>
+                     <p className="text-sm text-jj-gray-600 dark:text-jj-gray-300 mb-4">Solve today's puzzle to earn 25 Joy Points instantly.</p>
+                     <Link to="/play" className="text-sm font-bold text-jj-blue underline">Play Now</Link>
                 </div>
-            </Link>
-            </MotionDiv>
-          ))}
-          </MotionDiv>
+                {/* New Release */}
+                <div className="bg-white/70 dark:bg-jj-gray-800/70 p-6 rounded-3xl shadow-lg border border-white/20">
+                     <span className="text-xs font-bold text-jj-purple uppercase tracking-wider mb-2 block">Just Arrived</span>
+                     <h3 className="text-xl font-bold text-jj-gray-900 dark:text-white mb-2">Mehfil</h3>
+                     <p className="text-sm text-jj-gray-600 dark:text-jj-gray-300 mb-4">A new storytelling game that brings people closer.</p>
+                     <Link to="/shop/mehfil" className="text-sm font-bold text-jj-blue underline">Shop Now</Link>
+                </div>
+             </div>
+        </div>
       </section>
 
+      {/* SECTION 4 REMOVED: Proof of Joy / Quotes */}
 
-      {/* Section 4: Event Spotlight */}
-      {upcomingEvent && (
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <MotionDiv 
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={expressiveSpring}
-                className="bg-white/70 dark:bg-jj-gray-800/70 backdrop-blur-2xl rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row border border-white/50 dark:border-white/10"
-            >
-                <img src={upcomingEvent.imageUrl} alt={upcomingEvent.name} className="w-full md:w-5/12 h-64 md:h-auto object-cover"/>
-                <div className="p-8 md:p-12 flex flex-col justify-center">
-                    <p className="font-bold text-jj-red">UPCOMING EVENT</p>
-                    <h2 className="text-3xl font-extrabold mt-2 text-jj-gray-900 dark:text-white">{upcomingEvent.name}</h2>
-                    <p className="font-semibold text-jj-gray-800 dark:text-jj-gray-200 mt-1">{new Date(upcomingEvent.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} @ {upcomingEvent.location}</p>
-                    <p className="text-jj-gray-800 dark:text-jj-gray-300 mt-4">{upcomingEvent.description}</p>
-                    <MotionDiv whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring} className="mt-6 self-start">
-                        <Link to="/events" className="block bg-jj-red text-white font-bold py-3 px-6 rounded-full">
-                            Learn More & Register
-                        </Link>
-                    </MotionDiv>
-                </div>
-            </MotionDiv>
-        </section>
-      )}
-
-      {/* Section 5: Community Gallery */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-8 text-jj-gray-900 dark:text-white">From Our Community</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <MotionImg initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.1}} src="https://picsum.photos/seed/joy1/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:rotate-2 aspect-square object-cover"/>
-                <MotionImg initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.2}} src="https://picsum.photos/seed/joy2/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:-rotate-2 aspect-square object-cover"/>
-                <MotionImg initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.3}} src="https://picsum.photos/seed/joy3/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:rotate-2 aspect-square object-cover"/>
-                <MotionImg initial={{opacity:0, scale:0.8}} whileInView={{opacity:1, scale:1}} viewport={{once: true}} transition={{...expressiveSpring, delay: 0.4}} src="https://picsum.photos/seed/joy4/500/500" className="rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 hover:-rotate-2 aspect-square object-cover"/>
+      {/* SECTION 5: GAMIFICATION TEASER */}
+      <section className="py-16 px-4 max-w-7xl mx-auto">
+        <div className="relative rounded-[2.5rem] overflow-hidden bg-pink-100 dark:bg-pink-950/40 shadow-2xl">
+          {/* Animated Floating Shapes Background */}
+          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+              {/* Material Expressive Shapes: Flower/Scallop, Star, Circle */}
+              <MotionDiv initial={{ y: 100, opacity: 0 }} animate={{ y: -500, opacity: [0, 0.4, 0], rotate: 120 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute bottom-[-10%] left-[5%] text-pink-300 dark:text-pink-500/30"><svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C13.1 2 14 2.9 14 4C14 2.9 14.9 2 16 2C17.1 2 18 2.9 18 4C18 5.1 18.9 6 20 6C21.1 6 22 6.9 22 8C22 9.1 21.1 10 20 10C21.1 10 22 10.9 22 12C22 13.1 21.1 14 20 14C21.1 14 22 14.9 22 16C22 17.1 21.1 18 20 18C18.9 18 18 18.9 18 20C18 21.1 17.1 22 16 22C14.9 22 14 21.1 14 20C14 21.1 13.1 22 12 22C10.9 22 10 21.1 10 20C10 21.1 9.1 22 8 22C6.9 22 6 21.1 6 20C6 18.9 5.1 18 4 18C2.9 18 2 17.1 2 16C2 14.9 2.9 14 4 14C2.9 14 2 13.1 2 12C2 10.9 2.9 10 4 10C2.9 10 2 9.1 2 8C2 6.9 2.9 6 4 6C5.1 6 6 5.1 6 4C6 2.9 6.9 2 8 2C9.1 2 10 2.9 10 4C10 2.9 10.9 2 12 2Z"/></svg></MotionDiv>
+              <MotionDiv initial={{ y: 100, opacity: 0 }} animate={{ y: -500, opacity: [0, 0.3, 0], rotate: -90 }} transition={{ duration: 25, repeat: Infinity, delay: 3, ease: "linear" }} className="absolute bottom-[-10%] left-[80%] text-purple-300 dark:text-purple-500/30"><svg className="w-40 h-40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/></svg></MotionDiv>
+              <MotionDiv initial={{ y: 100, opacity: 0 }} animate={{ y: -500, opacity: [0, 0.3, 0], rotate: 45 }} transition={{ duration: 18, repeat: Infinity, delay: 7, ease: "linear" }} className="absolute bottom-[-10%] left-[40%] text-pink-400 dark:text-pink-600/30"><svg className="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="4" /></svg></MotionDiv>
+          </div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-12 p-12 md:p-16">
+            <div className="flex-1">
+                <span className="bg-white/60 dark:bg-white/10 text-jj-purple dark:text-pink-200 px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block backdrop-blur-md">The Joy Engine</span>
+                <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-jj-gray-900 dark:text-white">Play More. Earn More.</h2>
+                <p className="text-lg md:text-xl text-jj-gray-700 dark:text-pink-100/80 mb-10 leading-relaxed">Every game you buy, every event you attend, and every puzzle you solve adds to your Joy Wallet. Redeem points for exclusive discounts and rewards.</p>
+                <Link to="/wallet" className="bg-jj-gray-900 dark:bg-white text-white dark:text-jj-gray-900 font-bold py-4 px-10 rounded-full shadow-xl hover:scale-105 transition-transform inline-block">
+                    Check Your Wallet
+                </Link>
             </div>
-      </section>
-
-      {/* Section 6: Gamification Teaser */}
-      <section
-        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white/60 dark:bg-jj-gray-800/60 backdrop-blur-xl rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row items-center border border-white/50 dark:border-white/10">
-            <div className="w-full md:w-1/2 p-8 md:p-12">
-                <h2 className="text-3xl font-bold text-jj-gray-900 dark:text-white">The Joy Engine</h2>
-                <p className="mt-4 text-lg text-jj-gray-900 dark:text-jj-gray-200">Your engagement is our currency. Earn Joy Points with every game purchase, event you attend, and online puzzle you solve.</p>
-                 <MotionDiv whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={expressiveSpring} className="mt-6 inline-block">
-                    <Link to="/wallet" className="block bg-jj-purple text-white font-bold py-3 px-6 rounded-full">
-                        Discover Your Wallet &rarr;
-                    </Link>
-                </MotionDiv>
+            <div className="flex-1 flex justify-center">
+                 <div className="bg-white/40 dark:bg-black/20 backdrop-blur-2xl p-8 rounded-[2rem] border border-white/40 dark:border-white/10 shadow-xl max-w-sm w-full">
+                    <div className="flex justify-between items-center mb-6">
+                        <span className="text-sm font-bold text-jj-gray-600 dark:text-pink-200 tracking-wider">CURRENT BALANCE</span>
+                        <svg className="w-6 h-6 text-jj-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div className="text-5xl font-extrabold mb-2 text-jj-gray-900 dark:text-white">{totalPoints}</div>
+                    <div className="text-sm text-jj-gray-600 dark:text-pink-200 mb-8">Joy Points</div>
+                    <div className="space-y-3">
+                        <div className="flex justify-between text-sm">
+                            <span className="text-jj-gray-700 dark:text-pink-100">Solved Sudoku</span>
+                            <span className="text-green-600 dark:text-green-400 font-bold">+25</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-jj-gray-700 dark:text-pink-100">Purchased Mehfil</span>
+                            <span className="text-green-600 dark:text-green-400 font-bold">+250</span>
+                        </div>
+                    </div>
+                 </div>
             </div>
-            <div className="w-full md:w-1/2 p-8 flex items-center justify-center">
-                <div className="bg-white dark:bg-jj-gray-900 p-6 rounded-3xl shadow-lg w-full max-w-sm">
-                    <div className="flex justify-between items-center">
-                        <h4 className="font-bold text-jj-gray-900 dark:text-white">Your Wallet</h4>
-                        <span className="text-xs font-semibold text-jj-purple bg-jj-purple/10 px-2 py-1 rounded-full">PREVIEW</span>
-                    </div>
-                    <div className="text-center my-4">
-                        <p className="text-4xl font-bold text-jj-purple">{totalPoints}</p>
-                        <p className="text-sm text-jj-gray-500 dark:text-jj-gray-400">Joy Points</p>
-                    </div>
-                    <div className="text-xs text-jj-gray-500 dark:text-jj-gray-400 space-y-1">
-                        <p><span className="font-semibold text-green-500">+100</span> for Sign Up</p>
-                        <p><span className="font-semibold text-green-500">+250</span> for Mehfil Purchase</p>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
       </section>
 
     </div>
   );
 };
-
-const ICONS: { [key: string]: React.ReactNode } = {
-  home: <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,
-  users: <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.125-1.274-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.125-1.274.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>,
-  gift: <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>,
-  heart: <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" /></svg>
-};
-
-const philosophyCardStyles: { [key: string]: string } = {
-  'jj-blue': 'text-jj-blue',
-  'jj-pink': 'text-jj-pink',
-  'jj-orange': 'text-jj-orange',
-};
-
-const PhilosophyCard: React.FC<{ title: string; description: string; icon: string; color: string }> = ({ title, description, icon, color }) => {
-  const colorClass = philosophyCardStyles[color] || 'text-jj-gray-900';
-
-  return (
-    <MotionDiv
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.5 }}
-      transition={expressiveSpring}
-      className="p-8 rounded-3xl bg-white/70 dark:bg-jj-gray-800/70 backdrop-blur-xl shadow-lg text-center"
-    >
-      <div className={`${colorClass} inline-block mb-4`}>
-          {ICONS[icon]}
-      </div>
-      <h3 className="text-xl font-bold text-jj-gray-900 dark:text-white">{title}</h3>
-      <p className="mt-2 text-jj-gray-900 dark:text-jj-gray-300">{description}</p>
-    </MotionDiv>
-  );
-};
-
 
 export default Home;
