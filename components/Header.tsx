@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import Loading from '../components/Loading';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCart } from '../contexts/CartContext';
@@ -65,10 +64,11 @@ const NavItem: React.FC<{ to: string; children: React.ReactNode }> = ({ to, chil
 };
 
 const Header: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { cartCount } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -86,6 +86,15 @@ const Header: React.FC = () => {
       transform: isScrolled ? 'translateY(6px)' : 'translateY(0px)',
     });
   }, [isScrolled, api]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error("Failed to log out", error);
+    }
+  };
 
   const pillBase = `
     h-[60px] flex items-center justify-center
@@ -149,6 +158,7 @@ const Header: React.FC = () => {
           </Link>
         </div>
 
+        {/* Profile / Login Button */}
         <div className={`pointer-events-auto ${user ? 'w-[60px]' : 'px-0'} ${pillBase} ${user ? profileClass : 'border-0'} ml-2`}>
           {loading ? (
             <div className="flex items-center justify-center w-11 h-11">
@@ -172,6 +182,21 @@ const Header: React.FC = () => {
             </Link>
           )}
         </div>
+
+        {/* NEW LOGOUT BUTTON: COMPLETE RED, NO BLUR */}
+        {user && (
+          <div className="pointer-events-auto w-[60px] h-[60px] ml-2 flex items-center justify-center rounded-full bg-red-600 shadow-xl hover:bg-red-700 transition-colors duration-300">
+            <button
+              onClick={handleLogout}
+              className="w-full h-full flex items-center justify-center text-white"
+              title="Logout"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+        )}
 
       </animated.div>
     </header>

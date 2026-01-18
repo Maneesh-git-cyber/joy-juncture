@@ -1,9 +1,7 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Loading from '../components/Loading';
 import { useWallet } from '../contexts/WalletContext';
 import { useAuth } from '../contexts/AuthContext';
-import { motion } from 'framer-motion';
 
 const SUDOKU_PUZZLE = [
     [5, 3, 0, 0, 7, 0, 0, 0, 0],
@@ -33,7 +31,7 @@ const SudokuGrid: React.FC = () => {
     const { addPoints } = useWallet();
     const [grid, setGrid] = useState(SUDOKU_PUZZLE.map(row => [...row]));
     const [solved, setSolved] = useState(false);
-    const [claimed, setClaimed] = useState(false);
+    const [claiming, setClaiming] = useState(false);
 
     const handleChange = (row: number, col: number, value: string) => {
         const num = parseInt(value) || 0;
@@ -53,11 +51,19 @@ const SudokuGrid: React.FC = () => {
     };
 
     const handleClaim = async () => {
-        await addPoints('Solved Sudoku Puzzle', 25);
-        alert('25 Joy Points added to your wallet!');
-        setGrid(SUDOKU_PUZZLE.map(row => [...row]));
-        setSolved(false);
-        setClaimed(true);
+        if(claiming) return;
+        setClaiming(true);
+        try {
+            await addPoints('Solved Sudoku Puzzle', 25);
+            alert('25 Joy Points added to your wallet!');
+            setGrid(SUDOKU_PUZZLE.map(row => [...row]));
+            setSolved(false);
+        } catch (error) {
+            console.error("Error claiming points:", error);
+            alert("Could not claim points. Please check your connection.");
+        } finally {
+            setClaiming(false);
+        }
     };
 
     return (
@@ -84,13 +90,16 @@ const SudokuGrid: React.FC = () => {
                     ))
                 )}
             </div>
-            {solved && !claimed ? (
-                <button onClick={handleClaim} className="mt-6 w-full bg-green-500 text-white font-bold py-2 rounded-full hover:bg-green-600 animate-bounce shadow-lg">
-                    Claim 25 Joy Points
+            {solved ? (
+                <button 
+                    onClick={handleClaim} 
+                    disabled={claiming}
+                    className="mt-6 w-full bg-green-500 text-white font-bold py-2 rounded-full hover:bg-green-600 animate-bounce shadow-lg disabled:opacity-50 disabled:animate-none">
+                    {claiming ? 'Claiming...' : 'Claim 25 Joy Points'}
                 </button>
             ) : (
-                <button onClick={checkSolution} disabled={solved} className="mt-6 w-full bg-jj-blue text-white font-bold py-2 rounded-full hover:bg-opacity-90 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                    {claimed ? 'Points Claimed!' : (solved ? 'Solved!' : 'Check Solution')}
+                <button onClick={checkSolution} className="mt-6 w-full bg-jj-blue text-white font-bold py-2 rounded-full hover:bg-opacity-90">
+                    Check Solution
                 </button>
             )}
         </div>
@@ -101,7 +110,7 @@ const RiddleGame: React.FC = () => {
     const { addPoints } = useWallet();
     const [answer, setAnswer] = useState('');
     const [solved, setSolved] = useState(false);
-    const [claimed, setClaimed] = useState(false);
+    const [claiming, setClaiming] = useState(false);
 
     const checkAnswer = (e: React.FormEvent) => {
         e.preventDefault();
@@ -113,11 +122,18 @@ const RiddleGame: React.FC = () => {
     };
 
     const handleClaim = async () => {
-        await addPoints('Solved Daily Riddle', 10);
-        alert('10 Joy Points added to your wallet!');
-        setAnswer('');
-        setSolved(false);
-        setClaimed(true);
+        if(claiming) return;
+        setClaiming(true);
+        try {
+            await addPoints('Solved Daily Riddle', 10);
+            alert('10 Joy Points added to your wallet!');
+            setAnswer('');
+            setSolved(false);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setClaiming(false);
+        }
     };
 
     return (
@@ -129,13 +145,13 @@ const RiddleGame: React.FC = () => {
             </div>
             <form onSubmit={checkAnswer} className="space-y-4">
                 <input type="text" value={answer} onChange={e => setAnswer(e.target.value)} disabled={solved} className="w-full px-4 py-3 border rounded-xl focus:ring-jj-orange bg-white/50 dark:bg-jj-gray-700/50" placeholder="Your answer..."/>
-                {solved && !claimed ? (
-                    <button type="button" onClick={handleClaim} className="w-full bg-green-500 text-white font-bold py-3 rounded-full hover:bg-green-600 animate-bounce shadow-lg">
-                        Claim 10 Joy Points
+                {solved ? (
+                    <button type="button" onClick={handleClaim} disabled={claiming} className="w-full bg-green-500 text-white font-bold py-3 rounded-full hover:bg-green-600 animate-bounce shadow-lg disabled:opacity-50">
+                        {claiming ? 'Claiming...' : 'Claim 10 Joy Points'}
                     </button>
                 ) : (
-                    <button type="submit" disabled={solved} className="w-full bg-jj-orange text-white font-bold py-3 rounded-full hover:bg-opacity-90 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        {claimed ? 'Points Claimed!' : (solved ? 'Solved!' : 'Submit Answer')}
+                    <button type="submit" className="w-full bg-jj-orange text-white font-bold py-3 rounded-full hover:bg-opacity-90">
+                        Submit Answer
                     </button>
                 )}
             </form>
@@ -155,7 +171,7 @@ const SnakeGame: React.FC = () => {
     const [gameOver, setGameOver] = useState(false);
     const [score, setScore] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [hasClaimed, setHasClaimed] = useState(false);
+    const [claiming, setClaiming] = useState(false);
 
     useEffect(() => {
         if (!isPlaying || gameOver) return;
@@ -198,7 +214,6 @@ const SnakeGame: React.FC = () => {
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
             }
-
             if (e.key === 'ArrowUp' && direction !== 'DOWN') setDirection('UP');
             if (e.key === 'ArrowDown' && direction !== 'UP') setDirection('DOWN');
             if (e.key === 'ArrowLeft' && direction !== 'RIGHT') setDirection('LEFT');
@@ -215,20 +230,25 @@ const SnakeGame: React.FC = () => {
         setGameOver(false);
         setScore(0);
         setIsPlaying(true);
-        setHasClaimed(false);
     };
 
     const claimPoints = async () => {
-        if (score > 0 && !hasClaimed) {
-            await addPoints(`Snake Game High Score`, score);
-            alert(`${score} Joy Points added to your wallet!`);
-            setIsPlaying(false);
-            setSnake(INITIAL_SNAKE);
-            setFood(INITIAL_FOOD);
-            setDirection('RIGHT');
-            setGameOver(false);
-            setScore(0);
-            setHasClaimed(true);
+        if (score > 0 && !claiming) {
+            setClaiming(true);
+            try {
+                await addPoints(`Snake Game High Score`, score);
+                alert(`${score} Joy Points added to your wallet!`);
+                setSnake(INITIAL_SNAKE);
+                setFood(INITIAL_FOOD);
+                setDirection('RIGHT');
+                setGameOver(false);
+                setScore(0);
+                setIsPlaying(false);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setClaiming(false);
+            }
         }
     };
 
@@ -242,26 +262,20 @@ const SnakeGame: React.FC = () => {
                     <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white z-10">
                         <p className="text-2xl font-bold mb-2">Game Over</p>
                         <p className="mb-4">Score: {score}</p>
-                        <button onClick={startGame} className="bg-jj-purple px-4 py-2 rounded-full font-bold hover:bg-opacity-90 transition">Play Again</button>
-
-                        {score > 0 && (
-                            <div className="mt-4">
-                                {!hasClaimed ? (
-                                    <button onClick={claimPoints} className="bg-jj-sky text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-jj-blue transition-colors">
-                                        Claim {score} Joy Points
-                                    </button>
-                                ) : (
-                                    <span className="text-green-400 font-bold text-sm flex items-center animate-bounce">
-                                        ✓ Added to Wallet!
-                                    </span>
-                                )}
-                            </div>
-                        )}
+                        
+                        <div className="flex flex-col gap-2">
+                            <button onClick={startGame} className="bg-jj-purple px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition">Play Again</button>
+                            {score > 0 && (
+                                <button onClick={claimPoints} disabled={claiming} className="bg-green-500 text-white px-6 py-2 rounded-full font-bold text-sm hover:bg-green-600 transition-colors disabled:opacity-50">
+                                    {claiming ? 'Claiming...' : `Claim ${score} Joy Points`}
+                                </button>
+                            )}
+                        </div>
                     </div>
                 )}
                 {!isPlaying && !gameOver && (
                     <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white z-10">
-                        <button onClick={startGame} className="bg-jj-green px-6 py-3 rounded-full font-bold bg-green-500">Start Game</button>
+                        <button onClick={startGame} className="bg-green-500 px-6 py-3 rounded-full font-bold hover:bg-green-600">Start Game</button>
                     </div>
                 )}
 
@@ -294,7 +308,7 @@ const MemoryGame: React.FC = () => {
     const [moves, setMoves] = useState(0);
     const [gameWon, setGameWon] = useState(false);
     const [score, setScore] = useState(0);
-    const [claimed, setClaimed] = useState(false);
+    const [claiming, setClaiming] = useState(false);
 
     const initializeGame = () => {
         const shuffled = [...EMOJIS, ...EMOJIS]
@@ -305,7 +319,6 @@ const MemoryGame: React.FC = () => {
         setMoves(0);
         setScore(0);
         setGameWon(false);
-        setClaimed(false);
     };
 
     useEffect(() => {
@@ -347,10 +360,17 @@ const MemoryGame: React.FC = () => {
     };
 
     const handleClaim = async () => {
-        await addPoints(`Memory Master Win (${moves} moves)`, score);
-        alert(`${score} Joy Points added to your wallet!`);
-        initializeGame();
-        setClaimed(true);
+        if(claiming) return;
+        setClaiming(true);
+        try {
+            await addPoints(`Memory Master Win (${moves} moves)`, score);
+            alert(`${score} Joy Points added to your wallet!`);
+            initializeGame();
+        } catch(err) {
+            console.error(err);
+        } finally {
+            setClaiming(false);
+        }
     };
 
     return (
@@ -381,13 +401,9 @@ const MemoryGame: React.FC = () => {
             </div>
             {gameWon && (
                 <div className="mt-4 w-full">
-                    {!claimed ? (
-                        <button onClick={handleClaim} className="w-full bg-green-500 text-white font-bold py-2 rounded-full hover:bg-green-600 animate-bounce shadow-lg">
-                            Claim {score} Joy Points
-                        </button>
-                    ) : (
-                        <p className="text-green-600 font-bold text-center">Points Added to Wallet!</p>
-                    )}
+                    <button onClick={handleClaim} disabled={claiming} className="w-full bg-green-500 text-white font-bold py-2 rounded-full hover:bg-green-600 animate-bounce shadow-lg disabled:opacity-50">
+                        {claiming ? 'Claiming...' : `Claim ${score} Joy Points`}
+                    </button>
                 </div>
             )}
         </div>
